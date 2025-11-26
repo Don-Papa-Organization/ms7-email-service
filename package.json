@@ -1,0 +1,20 @@
+{
+  "name": "emailservice",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "ts-node ./src/server",
+    "tsc": "tsc -watch"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "nodemailer": "^7.0.10",
+    "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.5",
+    "@types/nodemailer": "^7.0.3",
+    "ts-node": "^10.9.2"
+  }
+}
