@@ -24,7 +24,7 @@ const transporter = nodemailer.createTransport({
 
 class SendEmail{
     private readonly fromEmail = "Don Papa <clientservicedp03@gmail.com>";
-    private readonly baseUrl = process.env.BASE_URL || "http://localhost:4000/users";
+    private readonly baseUrl = process.env.BASE_URL || "http://localhost:4000/users/auth";
     
     sendVerificationEmail = async (req: Request, res: Response): Promise<void> => {
         
@@ -64,6 +64,54 @@ class SendEmail{
             res.status(500).json({ 
                 success: false,
                 message: "Error al enviar email",
+                error: error instanceof Error ? error.message : "Error desconocido"
+            });
+        }
+    }
+
+    sendOrderConfirmationEmail = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const { email, nombreCliente, numeroPedido, productos, total, estado, direccionEntrega, metodoPago } = req.body;
+
+            if (!email || !nombreCliente || !numeroPedido || !productos || !total || !estado) {
+                res.status(400).json({ message: "Datos incompletos para enviar confirmación de pedido" });
+                return;
+            }
+
+            if (!EmailValidations.validateEmail(email)) {
+                res.status(400).json({ message: "Formato de correo inválido" });
+                return;
+            }
+
+            const mailOptions: EmailOptions = {
+                to: email,
+                subject: "Confirmación de Pedido - Don Papa",
+                html: emailTemplate.generateOrderConfirmationEmailTemplate({
+                    nombreCliente,
+                    numeroPedido,
+                    productos,
+                    total,
+                    estado,
+                    direccionEntrega,
+                    metodoPago
+                })
+            };
+
+            const info = await transporter.sendMail({
+                ...mailOptions,
+                from: this.fromEmail
+            });
+
+            res.status(200).json({ 
+                success: true,
+                messageId: info.messageId,
+                message: "Email de confirmación de pedido enviado correctamente"
+            });
+        } catch (error) {
+            console.error('Error al enviar email de confirmación:', error);
+            res.status(500).json({ 
+                success: false,
+                message: "Error al enviar email de confirmación",
                 error: error instanceof Error ? error.message : "Error desconocido"
             });
         }
