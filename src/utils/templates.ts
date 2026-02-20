@@ -171,4 +171,50 @@ export class emailTemplate{
         </html>
         `;
     }
+
+    public static generatePasswordResetEmailTemplate(resetLink: string): string {
+            return `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    .container { 
+                        font-family: Arial, sans-serif;
+                        max-width: 600px;
+                        margin: 0 auto;
+                        padding: 20px;
+                    }
+                    .button {
+                        background-color: #ff7a00;
+                        border: none;
+                        color: white;
+                        padding: 15px 32px;
+                        text-align: center;
+                        text-decoration: none;
+                        display: inline-block;
+                        font-size: 16px;
+                        margin: 4px 2px;
+                        cursor: pointer;
+                        border-radius: 4px;
+                    }
+                    .warning {
+                        color: #b00020;
+                        font-size: 14px;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <h1>Restablecer contraseña - Don Papa</h1>
+                    <p>Hemos recibido una solicitud para restablecer tu contraseña.</p>
+                    <p>Haz clic en el siguiente botón para continuar:</p>
+                    <a href="${resetLink}" class="button">Restablecer contraseña</a>
+                    <p>Si no puedes hacer clic en el botón, copia y pega este enlace en tu navegador:</p>
+                    <p>${resetLink}</p>
+                    <p class="warning">Si no solicitaste este cambio, puedes ignorar este correo.</p>
+                </div>
+            </body>
+            </html>
+            `;
+        }
 }

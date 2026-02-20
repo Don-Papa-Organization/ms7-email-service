@@ -24,7 +24,15 @@ const transporter = nodemailer.createTransport({
 
 class SendEmail{
     private readonly fromEmail = "Don Papa <clientservicedp03@gmail.com>";
-    private readonly baseUrl = process.env.BASE_URL || "http://localhost:4000/users/auth";
+    private readonly clientBaseUrl = process.env.CLIENT_BASE_URL || "http://localhost:4200";
+    private readonly verifyEmailPath = process.env.VERIFY_EMAIL_PATH || "/auth/verify-email";
+    private readonly resetPasswordPath = process.env.RESET_PASSWORD_PATH || "/auth/reset-password";
+
+    private buildClientLink(path: string, token: string): string {
+        const url = new URL(path, this.clientBaseUrl);
+        url.searchParams.set("token", token);
+        return url.toString();
+    }
     
     sendVerificationEmail = async (req: Request, res: Response): Promise<void> => {
         
@@ -41,7 +49,7 @@ class SendEmail{
                 return;
             }
 
-            const verificationLink = `${this.baseUrl}/verify-email?token=${token}`;
+            const verificationLink = this.buildClientLink(this.verifyEmailPath, token);
             const mailOptions: EmailOptions = {
                 to: email,
                 subject: "Verificación de correo Don Papa",
@@ -112,6 +120,47 @@ class SendEmail{
             res.status(500).json({ 
                 success: false,
                 message: "Error al enviar email de confirmación",
+                error: error instanceof Error ? error.message : "Error desconocido"
+            });
+        }
+    }
+
+    sendPasswordResetEmail = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const { email, token } = req.body;
+
+            if (!email || !token) {
+                res.status(400).json({ message: "Email y token son requeridos" });
+                return;
+            }
+
+            if (!EmailValidations.validateEmail(email)) {
+                res.status(400).json({ message: "Formato de correo inválido" });
+                return;
+            }
+
+            const resetLink = this.buildClientLink(this.resetPasswordPath, token);
+            const mailOptions: EmailOptions = {
+                to: email,
+                subject: "Recuperación de contraseña - Don Papa",
+                html: emailTemplate.generatePasswordResetEmailTemplate(resetLink)
+            };
+
+            const info = await transporter.sendMail({
+                ...mailOptions,
+                from: this.fromEmail
+            });
+
+            res.status(200).json({
+                success: true,
+                messageId: info.messageId,
+                message: "Email de recuperación enviado correctamente"
+            });
+        } catch (error) {
+            console.error('Error al enviar email de recuperación:', error);
+            res.status(500).json({
+                success: false,
+                message: "Error al enviar email de recuperación",
                 error: error instanceof Error ? error.message : "Error desconocido"
             });
         }
