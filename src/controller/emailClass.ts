@@ -24,7 +24,7 @@ const transporter = nodemailer.createTransport({
 
 class SendEmail{
     private readonly fromEmail = "Don Papa <clientservicedp03@gmail.com>";
-    private readonly clientBaseUrl = process.env.CLIENT_BASE_URL || "http://localhost:4200";
+    private readonly clientBaseUrl = process.env.CLIENT_BASE_URL || process.env.BASE_URL || "http://localhost:4200";
     private readonly verifyEmailPath = process.env.VERIFY_EMAIL_PATH || "/auth/verify-email";
     private readonly resetPasswordPath = process.env.RESET_PASSWORD_PATH || "/auth/reset-password";
 
